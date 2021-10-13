@@ -36,13 +36,13 @@ matrix forward_activation_layer(layer l, matrix x)
             } else if (a == LRELU) {
                 y.data[row * y.cols + col] = (temp > 0.0) ? temp : 0.01 * temp;
             } else if (a == SOFTMAX) {
-                y.data[row * y.cols + col] = exp(-temp);
+                y.data[row * y.cols + col] = exp(temp);
                 sum += y.data[row * y.cols + col];
             }
-            if (a == SOFTMAX) {
-                for (int k = 0; k < y.cols; k++) {
-                    y.data[row * y.cols + k] /= sum;
-                }
+        }
+        if (a == SOFTMAX) {
+            for (col = 0; col < y.cols; col++) {
+                y.data[row * y.cols + col] /= sum;
             }
         }
     }
@@ -75,7 +75,8 @@ matrix backward_activation_layer(layer l, matrix dy)
             double x_ = x.data[row * dx.cols + col];
             double grad = 1.0;
             if (a == LOGISTIC) {
-                grad = x_ * (1.0 - x_);
+                double logx = 1.0 / (1.0 + exp(-x_));
+                grad = logx * (1.0 - logx);
             } else if (a == RELU) {
                 grad = (x_ > 0.0) ? 1.0 : 0.0;
             } else if (a == LRELU) {
