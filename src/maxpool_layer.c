@@ -20,7 +20,40 @@ matrix forward_maxpool_layer(layer l, matrix in)
     int outh = (l.height-1)/l.stride + 1;
     matrix out = make_matrix(in.rows, outw*outh*l.channels);
 
+    printf("in: %d, %d => %d\n", in.rows, in.cols, in.rows * in.cols);
+    printf("out: %d, %d => %d\n", out.rows, out.cols, out.rows * out.cols);
+    printf("l.width: %d, l.height: %d, l.c: %d\n", l.width, l.height, l.channels);
+    printf("size: %d, stride: %d\n", l.size, l.stride);
+
     // TODO: 6.1 - iterate over the input and fill in the output with max values
+    int i, j;
+    int out_idx = 0;
+    for(i = 0; i < in.rows; i+=l.stride*l.stride){
+        for(j = 0; j < in.cols; j+=l.stride){
+
+            // int a_start = i - (l.size - 1) / 2;
+            // int b_start = j - (l.size - 1) / 2;
+            float max = in.data[i * in.cols + j]; //[a_start * in.cols + b_start];
+            // for(int a = a_start; a < a_start + l.size; ++a) {
+            //     for(int b = b_start; b < b_start + l.size; ++b) {
+            for(int a = i; a < i + l.size; ++a) {
+                for(int b = j; b < j + l.size; ++b) {
+                    if (a >= 0 && b >= 0 && a < in.rows && b < in.cols) {
+                        float val = in.data[a * in.cols + b];
+                        if (val > max) {
+                            max = val;
+                        }
+                    }
+                }
+            }
+            if (out_idx == 0) {
+                printf("...setting out.data[out_idx] = %d\n", max);
+            }
+            out.data[out_idx] = max;
+            printf("out_idx: %d\n ", out_idx);
+            out_idx++;
+        }
+    }
 
 
 
