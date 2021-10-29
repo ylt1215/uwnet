@@ -118,25 +118,49 @@ image col2im(int width, int height, int channels, matrix col, int size, int stri
         col_col = 0;
         for (imy = 0; imy < im.h; imy += stride) {
             for (imx = 0; imx < im.w; imx += stride) {
-                // size by size window
+                // for size * size window
                 int y, x;
                 col_row = 0;
-                // im[y][x] += col[][]
                 for (int i = 0; i < size; i++) {
+                    
                     for (int j = 0; j < size; j++) {
                         y = imy - (size-1)/2 + i;
                         x = imx - (size-1)/2 + j;
-                        if (x >= 0 && x < im.w && y >= 0 && y < im.h) {
-                            im.data[x + im.w*(y + im.h*c)] += col.data[c*size*size*col.cols + col_row*col.cols + col_col];
-                        }
+                        float val = get_impixel(im, x, y, c);
+                        set_pixel(im, x, y, c, val + col.data[c*size*size*col.cols + col_row*col.cols + col_col]);
+                        // col.data[c*size*size*col.cols + col_row*col.cols + col_col] = get_impixel(im, x, y, c);
                         col_row++;
                     }
                 }
-
+                col_col++;
             }
-            col_col++;
         }
     }
+
+    // int col_row, col_col;
+    // for (c = 0; c < im.c; c++) {
+    //     col_col = 0;
+    //     for (imy = 0; imy < im.h; imy += stride) {
+    //         for (imx = 0; imx < im.w; imx += stride) {
+    //             // size by size window
+    //             int y, x;
+    //             col_row = 0;
+    //             // im[y][x] += col[][]
+    //             for (int i = 0; i < size; i++) {
+    //                 for (int j = 0; j < size; j++) {
+    //                     y = imy - (size-1)/2 + i;
+    //                     x = imx - (size-1)/2 + j;
+    //                     if (x >= 0 && x < im.w && y >= 0 && y < im.h) {
+    //                         im.data[x + im.w*(y + im.h*c)] += col.data[c*size*size*col.cols + col_row*col.cols + col_col];
+    //                     }
+    //                     col_row++;
+    //                 }
+    //             }
+
+    //         }
+    //         col_col++;
+    //     }
+    // }
 
 
     return im;
