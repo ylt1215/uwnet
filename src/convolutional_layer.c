@@ -41,6 +41,22 @@ matrix backward_convolutional_bias(matrix dy, int n)
     return db;
 }
 
+// helper function for im2col, similar to get_pixel in image.c
+float get_impixel(image im, int x, int y, int c) {
+    if(x >= im.w) return 0;
+    if(y >= im.h) return 0;
+    if(x < 0) return 0;
+    if(y < 0) return 0;
+
+    if(x >= im.w) x = im.w - 1;
+    if(y >= im.h) y = im.h - 1;
+    if(x < 0) x = 0;
+    if(y < 0) y = 0;
+    assert(c >= 0);
+    assert(c < im.c);
+    return im.data[x + im.w*(y + im.h*c)];
+}
+
 // Make a column matrix out of an image
 // image im: image to process
 // int size: kernel size for convolution operation
@@ -70,7 +86,7 @@ matrix im2col(image im, int size, int stride)
                     for (int j = 0; j < size; j++) {
                         y = imy - (size-1)/2 + i;
                         x = imx - (size-1)/2 + j;
-                        col.data[c*size*size*cols + col_row*cols + col_col] = get_pixel(im, x, y, c);
+                        col.data[c*size*size*cols + col_row*cols + col_col] = get_impixel(im, x, y, c);
                         col_row++;
                     }
                 }
@@ -89,7 +105,7 @@ matrix im2col(image im, int size, int stride)
 // image im: image to add elements back into
 image col2im(int width, int height, int channels, matrix col, int size, int stride)
 {
-    int i, j, k;
+    int c, imx, imy;
 
     image im = make_image(width, height, channels);
     int outw = (im.w-1)/stride + 1;
@@ -97,7 +113,30 @@ image col2im(int width, int height, int channels, matrix col, int size, int stri
 
     // TODO: 5.2
     // Add values into image im from the column matrix
-    
+    int col_row, col_col;
+    for (c = 0; c < im.c; c++) {
+        col_col = 0;
+        for (imy = 0; imy < im.h; imy += stride) {
+            for (imx = 0; imx < im.w; imx += stride) {
+                // size by size window
+                int y, x;
+                col_row = 0;
+                // im[y][x] += col[][]
+                for (int i = 0; i < size; i++) {
+                    for (int j = 0; j < size; j++) {
+                        y = imy - (size-1)/2 + i;
+                        x = imx - (size-1)/2 + j;
+                        if (x >= 0 && x < im.w && y >= 0 && y < im.h) {
+                            im.data[x + im.w*(y + im.h*c)] += col.data[c*size*size*col.cols + col_row*col.cols + col_col];
+                        }
+                        col_row++;
+                    }
+                }
+
+            }
+            col_col++;
+        }
+    }
 
 
     return im;
