@@ -26,36 +26,38 @@ matrix forward_maxpool_layer(layer l, matrix in)
     printf("size: %d, stride: %d\n", l.size, l.stride);
 
     // TODO: 6.1 - iterate over the input and fill in the output with max values
-    int i, j;
-    int out_idx = 0;
-    for(i = 0; i < in.rows; i+=l.stride*l.stride){
-        for(j = 0; j < in.cols; j+=l.stride){
+    int batch_num, i, j, k;
+    for(batch_num = 0; batch_num < in.rows; batch_num++){
+        for(k = 0; k < l.channels; ++k) {
+            int collapsed_i = 0;
+            for(i = 0; i < l.height; i+=l.stride) {
+                int collapsed_j = 0;
+                for(j = 0; j < l.width; j+=l.stride){
 
-            // int a_start = i - (l.size - 1) / 2;
-            // int b_start = j - (l.size - 1) / 2;
-            float max = in.data[i * in.cols + j]; //[a_start * in.cols + b_start];
-            // for(int a = a_start; a < a_start + l.size; ++a) {
-            //     for(int b = b_start; b < b_start + l.size; ++b) {
-            for(int a = i; a < i + l.size; ++a) {
-                for(int b = j; b < j + l.size; ++b) {
-                    if (a >= 0 && b >= 0 && a < in.rows && b < in.cols) {
-                        float val = in.data[a * in.cols + b];
-                        if (val > max) {
-                            max = val;
+                    int a_start = i - (l.size - 1) / 2;
+                    int b_start = j - (l.size - 1) / 2;
+                    float max = in.data[k * l.width * l.height + i * l.width + j];
+                    int pixel_idx;
+                    for(int a = a_start; a < a_start + l.size; ++a) {
+                        for(int b = b_start; b < b_start + l.size; ++b) {
+                            if (a >= 0 && b >= 0 && a < l.height && b < l.width) {
+                                pixel_idx = k * l.width * l.height + a * l.width + b;
+                                float val = in.data[pixel_idx];
+                                if (val > max) {
+                                    max = val;
+                                }
+                            }
                         }
                     }
+                    int out_pixel_idx = k * outw * outh + collapsed_i * outw + collapsed_j;
+                    int out_idx = batch_num * outw + out_pixel_idx;
+                    out.data[out_idx] = max;
+                    collapsed_j++;
                 }
+                collapsed_i++;
             }
-            if (out_idx == 0) {
-                printf("...setting out.data[out_idx] = %d\n", max);
-            }
-            out.data[out_idx] = max;
-            printf("out_idx: %d\n ", out_idx);
-            out_idx++;
         }
     }
-
-
 
     return out;
 }
