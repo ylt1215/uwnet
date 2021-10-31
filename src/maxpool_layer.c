@@ -36,12 +36,12 @@ matrix forward_maxpool_layer(layer l, matrix in)
 
                     int a_start = i - (l.size - 1) / 2;
                     int b_start = j - (l.size - 1) / 2;
-                    float max = in.data[k * l.width * l.height + i * l.width + j];
+                    float max = in.data[batch_num * in.cols + k * l.width * l.height + i * l.width + j];
                     int pixel_idx;
                     for(int a = a_start; a < a_start + l.size; ++a) {
                         for(int b = b_start; b < b_start + l.size; ++b) {
                             if (a >= 0 && b >= 0 && a < l.height && b < l.width) {
-                                pixel_idx = k * l.width * l.height + a * l.width + b;
+                                pixel_idx = batch_num * in.cols + k * l.width * l.height + a * l.width + b;
                                 float val = in.data[pixel_idx];
                                 if (val > max) {
                                     max = val;
@@ -50,7 +50,7 @@ matrix forward_maxpool_layer(layer l, matrix in)
                         }
                     }
                     int out_pixel_idx = k * outw * outh + collapsed_i * outw + collapsed_j;
-                    int out_idx = batch_num * outw + out_pixel_idx;
+                    int out_idx = batch_num * out.cols + out_pixel_idx;
                     out.data[out_idx] = max;
                     collapsed_j++;
                 }
@@ -93,7 +93,7 @@ matrix backward_maxpool_layer(layer l, matrix dy)
                     for(int a = a_start; a < a_start + l.size; ++a) {
                         for(int b = b_start; b < b_start + l.size; ++b) {
                             if (a >= 0 && b >= 0 && a < l.height && b < l.width) {
-                                pixel_idx = k * l.width * l.height + a * l.width + b;
+                                pixel_idx = batch_num * in.cols + k * l.width * l.height + a * l.width + b;
                                 float val = in.data[pixel_idx];
                                 if (val > max) {
                                     max = val;
@@ -104,10 +104,10 @@ matrix backward_maxpool_layer(layer l, matrix dy)
                         }
                     }
                     int dx_pixel_idx = k * l.width * l.height + a_max * l.width + b_max;
-                    int dx_idx = batch_num * l.width + dx_pixel_idx;
+                    int dx_idx = batch_num * in.cols + dx_pixel_idx;
 
                     int dy_pixel_idx = k * outw * outh + collapsed_i * outw + collapsed_j;
-                    int dy_idx = batch_num * outw + dy_pixel_idx;
+                    int dy_idx = batch_num * dy.cols + dy_pixel_idx;
                     
                     dx.data[dx_idx] += dy.data[dy_idx];
                     collapsed_j++;
