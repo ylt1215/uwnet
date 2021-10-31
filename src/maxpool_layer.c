@@ -86,7 +86,7 @@ matrix backward_maxpool_layer(layer l, matrix dy)
 
                     int a_start = i - (l.size - 1) / 2;
                     int b_start = j - (l.size - 1) / 2;
-                    float max = in.data[k * l.width * l.height + i * l.width + j];
+                    float max = 0.0;
                     int a_max = i;
                     int b_max = j;
                     int pixel_idx;
