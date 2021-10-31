@@ -76,6 +76,47 @@ matrix backward_maxpool_layer(layer l, matrix dy)
     // corresponding delta with the delta from the output. This should be
     // similar to the forward method in structure.
 
+    int batch_num, i, j, k;
+    for(batch_num = 0; batch_num < in.rows; batch_num++){
+        for(k = 0; k < l.channels; ++k) {
+            int collapsed_i = 0;
+            for(i = 0; i < l.height; i+=l.stride) {
+                int collapsed_j = 0;
+                for(j = 0; j < l.width; j+=l.stride){
+
+                    int a_start = i - (l.size - 1) / 2;
+                    int b_start = j - (l.size - 1) / 2;
+                    float max = in.data[k * l.width * l.height + i * l.width + j];
+                    int a_max = i;
+                    int b_max = j;
+                    int pixel_idx;
+                    for(int a = a_start; a < a_start + l.size; ++a) {
+                        for(int b = b_start; b < b_start + l.size; ++b) {
+                            if (a >= 0 && b >= 0 && a < l.height && b < l.width) {
+                                pixel_idx = k * l.width * l.height + a * l.width + b;
+                                float val = in.data[pixel_idx];
+                                if (val > max) {
+                                    max = val;
+                                    a_max = a;
+                                    b_max = b;
+                                }
+                            }
+                        }
+                    }
+                    int dx_pixel_idx = k * l.width * l.height + a_max * l.width + b_max;
+                    int dx_idx = batch_num * l.width + dx_pixel_idx;
+
+                    int dy_pixel_idx = k * outw * outh + collapsed_i * outw + collapsed_j;
+                    int dy_idx = batch_num * outw + dy_pixel_idx;
+                    
+                    dx.data[dx_idx] += dy.data[dy_idx];
+                    collapsed_j++;
+                }
+                collapsed_i++;
+            }
+        }
+    }
+
 
 
     return dx;
