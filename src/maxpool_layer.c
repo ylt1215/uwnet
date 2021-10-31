@@ -20,10 +20,10 @@ matrix forward_maxpool_layer(layer l, matrix in)
     int outh = (l.height-1)/l.stride + 1;
     matrix out = make_matrix(in.rows, outw*outh*l.channels);
 
-    printf("in: %d, %d => %d\n", in.rows, in.cols, in.rows * in.cols);
-    printf("out: %d, %d => %d\n", out.rows, out.cols, out.rows * out.cols);
-    printf("l.width: %d, l.height: %d, l.c: %d\n", l.width, l.height, l.channels);
-    printf("size: %d, stride: %d\n", l.size, l.stride);
+    // printf("in: %d, %d => %d\n", in.rows, in.cols, in.rows * in.cols);
+    // printf("out: %d, %d => %d\n", out.rows, out.cols, out.rows * out.cols);
+    // printf("l.width: %d, l.height: %d, l.c: %d\n", l.width, l.height, l.channels);
+    // printf("size: %d, stride: %d\n", l.size, l.stride);
 
     // TODO: 6.1 - iterate over the input and fill in the output with max values
     int batch_num, i, j, k;
