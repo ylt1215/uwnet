@@ -17,6 +17,13 @@ def conv_net():
             make_activation_layer(SOFTMAX)]
     return make_net(l)
 
+def neural_net():
+    l = [   make_connected_layer(3*32*32, 256),
+            make_activation_layer(RELU),
+            make_connected_layer(256, 10),
+            make_activation_layer(SOFTMAX)]
+    return make_net(l)
+
 print("loading data...")
 train = load_image_classification_data("cifar/cifar.train", "cifar/cifar.labels")
 test  = load_image_classification_data("cifar/cifar.test",  "cifar/cifar.labels")
@@ -30,7 +37,8 @@ rate = .01
 momentum = .9
 decay = .005
 
-m = conv_net()
+# m = conv_net()
+m = neural_net()
 print("training...")
 train_image_classifier(m, train, batch, iters, rate, momentum, decay)
 print("done")
@@ -41,6 +49,15 @@ print("training accuracy: %f", accuracy_net(m, train))
 print("test accuracy:     %f", accuracy_net(m, test))
 
 # How accurate is the fully connected network vs the convnet when they use similar number of operations?
+
+# CNN
+# training accuracy: %f 0.7069600224494934
+# test accuracy:     %f 0.6561999917030334
+
+# Fully connected NN
+# training accuracy: %f 0.5242400169372559
+# test accuracy:     %f 0.4855000078678131
+
 # Why are you seeing these results? Speculate based on the information you've gathered and what you know about DL and ML.
 # Your answer:
 #
