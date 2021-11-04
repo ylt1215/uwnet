@@ -20,7 +20,13 @@ def conv_net():
 def neural_net():
     l = [   make_connected_layer(3*32*32, 256),
             make_activation_layer(RELU),
-            make_connected_layer(256, 10),
+            make_connected_layer(256, 512),
+            make_activation_layer(RELU),
+            make_connected_layer(512, 1024),
+            make_activation_layer(RELU),
+            make_connected_layer(1024, 512),
+            make_activation_layer(RELU),
+            make_connected_layer(512, 10),
             make_activation_layer(SOFTMAX)]
     return make_net(l)
 
@@ -50,15 +56,24 @@ print("test accuracy:     %f", accuracy_net(m, test))
 
 # How accurate is the fully connected network vs the convnet when they use similar number of operations?
 
-# CNN
-# training accuracy: %f 0.7069600224494934
-# test accuracy:     %f 0.6561999917030334
+# The convnet uses an estimated 141,885,440 operations (summing up operations from matmul in the convolutional
+# and connected layers). To compare, we designed a fully-connected network that uses 161,087,488 operations 
+# across five layers. Our results are shown below. We found that the convnet performed better with a 65.62%
+# test accuracy compared to 53.16% test accuracy from the fully-connected network.
 
-# Fully connected NN
-# training accuracy: %f 0.5242400169372559
-# test accuracy:     %f 0.4855000078678131
+# CNN
+# training accuracy: 0.7069600224494934
+# test accuracy:     0.6561999917030334
+
+# Fully-connected NN
+# training accuracy: 0.5998200178146362
+# test accuracy:     0.5315999984741211
 
 # Why are you seeing these results? Speculate based on the information you've gathered and what you know about DL and ML.
 # Your answer:
-#
-
+# With smaller convolutions, convnet is able to leverage spatial locality within the images for more specialized 
+# feature extraction, which helps it achieve a greater accuracy than the fully-connected network. Also, because convnet 
+# has fewer trainable weights per layer as a sparsely connected network, it requires a lower training time to optimize
+# those weights. The fully-connected network might be able to achieve a comparable accuracy if trained over more iterations
+# or with adjusted parameters, but because its fundamental structure has so many more weights to be updated, it will have
+# a much slower ability to learn than the convnet.
