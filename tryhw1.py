@@ -72,8 +72,8 @@ print("test accuracy:     %f", accuracy_net(m, test))
 # Why are you seeing these results? Speculate based on the information you've gathered and what you know about DL and ML.
 # Your answer:
 # With smaller convolutions, convnet is able to leverage spatial locality within the images for more specialized 
-# feature extraction, which helps it achieve a greater accuracy than the fully-connected network. Also, because convnet 
-# has fewer trainable weights per layer as a sparsely connected network, it requires a lower training time to optimize
-# those weights. The fully-connected network might be able to achieve a comparable accuracy if trained over more iterations
-# or with adjusted parameters, but because its fundamental structure has so many more weights to be updated, it will have
-# a much slower ability to learn than the convnet.
+# feature extraction, which helps it achieve a greater accuracy than the fully-connected network. Also, because 
+# convnet is a sparsely connected network with fewer trainable weights per layer, it requires a lower training 
+# time to optimize those weights. The fully-connected network might be able to achieve a comparable accuracy 
+# if trained over more iterations or with adjusted parameters, but because its structure has so many more weights 
+# to be updated, it will have a much slower ability to learn compared to the convnet.
