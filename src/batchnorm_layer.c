@@ -150,10 +150,9 @@ matrix delta_batch_norm(matrix d, matrix dm, matrix dv, matrix m, matrix v, matr
     for(i = 0; i < dx.rows; ++i){
         for(j = 0; j < dx.cols; ++j){
             float term1 = d.data[i*dx.cols + j] / sqrt(v.data[j/n] + eps);
-            float term2 = 2.0 * dv.data[j/n] * (x.data[i*dx.cols + j] - m.data[j/n]) / n;
-            float term3 = dm.data[j/n] / n;
+            float term2 = 2.0 * dv.data[j/n] * (x.data[i*dx.cols + j] - m.data[j/n]) / (n*d.rows);
+            float term3 = dm.data[j/n] / (n*d.rows);
             dx.data[i*dx.cols + j] = term1 + term2 + term3;
-            // dx.data[i*dx.cols + j] = d.data[i*dx.cols + j] / sqrt(v.data[j/n] + eps) + 2 * dv.data[j/n] * (x.data[i*dx.cols + j] - m.data[j/n]) / n + dm.data[j/n] / n;
         }
     }
 
