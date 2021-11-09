@@ -53,9 +53,9 @@ matrix normalize(matrix x, matrix m, matrix v, int groups)
     float eps = 0.00001f;
     int n = x.cols / groups;
     int i, j;
-    for (i = 0; i < x.rows; ++i) {
-        for (j = 0; j < x.cols; ++j) {
-            norm.data[i * x.cols + j] = (x.data[i * x.cols + j] - m.data[j / n]) / sqrt(v.data[j / n] + eps);
+    for(i = 0; i < x.rows; ++i){
+        for(j = 0; j < x.cols; ++j){
+            norm.data[i*x.cols + j] = (x.data[i*x.cols + j] - m.data[j/n]) / sqrt(v.data[j/n] + eps);
         }
     }
     return norm;
@@ -98,6 +98,16 @@ matrix delta_mean(matrix d, matrix v)
     int groups = v.cols;
     matrix dm = make_matrix(1, groups);
     // TODO 7.3 - Calculate dL/dm
+    float eps = 0.00001f;
+    int n = d.cols / groups;
+    int i, j;
+
+    for(i = 0; i < d.rows; ++i){
+        for(j = 0; j < d.cols; ++j){
+            dm.data[j/n] += -1 * d.data[i * d.cols + j] / sqrt(v.data[j/n] + eps);
+        }
+    }
+
     return dm;
 }
 
@@ -107,6 +117,16 @@ matrix delta_variance(matrix d, matrix x, matrix m, matrix v)
     int groups = m.cols;
     matrix dv = make_matrix(1, groups);
     // TODO 7.4 - Calculate dL/dv
+    float eps = 0.00001f;
+    int n = d.cols / groups;
+    int i, j;
+
+    for(i = 0; i < d.rows; ++i){
+        for(j = 0; j < d.cols; ++j){
+            dv.data[j/n] += -0.5 * d.data[i * d.cols + j] * (x.data[i * d.cols + j] - m.data[j/n]) * pow(v.data[j/n] + eps, -1.5);
+        }
+    }
+
     return dv;
 }
 
@@ -114,6 +134,29 @@ matrix delta_batch_norm(matrix d, matrix dm, matrix dv, matrix m, matrix v, matr
 {
     matrix dx = make_matrix(d.rows, d.cols);
     // TODO 7.5 - Calculate dL/dx
+    // d.data[i] * (1/sqrt(variance + eps))  +  delta_variance * 2/n * (x_i - mu)  +  delta_mean / n
+    float eps = 0.00001f;
+    int n = d.cols / dm.cols;
+    int i, j;
+
+    // printf("d: %d, %d\n", d.rows, d.cols);
+    // printf("dm: %d, %d\n", dm.rows, dm.cols);
+    // printf("dv: %d, %d\n", dv.rows, dv.cols);
+    // printf("m: %d, %d\n", m.rows, m.cols);
+    // printf("v: %d, %d\n", v.rows, v.cols);
+    // printf("x: %d, %d\n", x.rows, x.cols);
+    // printf("n: %d\n", n);
+
+    for(i = 0; i < dx.rows; ++i){
+        for(j = 0; j < dx.cols; ++j){
+            float term1 = d.data[i*dx.cols + j] / sqrt(v.data[j/n] + eps);
+            float term2 = 2.0 * dv.data[j/n] * (x.data[i*dx.cols + j] - m.data[j/n]) / n;
+            float term3 = dm.data[j/n] / n;
+            dx.data[i*dx.cols + j] = term1 + term2 + term3;
+            // dx.data[i*dx.cols + j] = d.data[i*dx.cols + j] / sqrt(v.data[j/n] + eps) + 2 * dv.data[j/n] * (x.data[i*dx.cols + j] - m.data[j/n]) / n + dm.data[j/n] / n;
+        }
+    }
+
     return dx;
 }
 
